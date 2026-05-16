@@ -1,188 +1,421 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Fun Facts</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Fun-Facts.web — For all of you</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            color: #fff;
-            text-align: center;
-            padding: 2rem;
-            overflow-x: hidden;
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-            /* ANIMIERTER FARBVERLAUF */
-            background: linear-gradient(45deg, #1e1b4b, #312e81, #4c1d95, #6d28d9, #7c3aed);
-            background-size: 500% 500%;
-            animation: gradientMove 15s ease infinite;
-        }
+<style>
+/* ------------------------------
+   GLOBAL STYLES + BACKGROUND
+--------------------------------*/
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a18cd1);
+    background-size: 400% 400%;
+    animation: gradientFlow 25s ease infinite;
+}
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+@keyframes gradientFlow {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
+/* ------------------------------
+   HEADER
+--------------------------------*/
+header {
+    position: fixed;
+    top: 0;
+    left: 60px;
+    width: calc(100% - 60px);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+}
 
-        .fact {
-            background: rgba(255,255,255,0.15);
-            padding: 1rem;
-            margin: 1rem auto;
-            border-radius: 12px;
-            max-width: 600px;
-            font-size: 1.2rem;
-            backdrop-filter: blur(4px);
-        }
+/* ------------------------------
+   LEFT EMOJI SIDEBAR
+--------------------------------*/
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 70px;
+    gap: 15px;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    z-index: 1001;
+}
 
-        .controls {
-            margin-bottom: 2rem;
-        }
+.sidebar .emoji {
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
 
-        select, input, button {
-            padding: 0.6rem;
-            border-radius: 8px;
-            border: none;
-            font-size: 1rem;
-            margin: 0.3rem;
-        }
+.sidebar .emoji:hover {
+    transform: scale(1.3);
+}
 
-        button {
-            background: #4c1d95;
-            color: white;
-            cursor: pointer;
-        }
+/* ------------------------------
+   BOTTOM SHEET PANEL
+--------------------------------*/
+#panel {
+    position: fixed;
+    left: 60px;
+    bottom: -100%;
+    width: calc(100% - 60px);
+    height: calc(100% - 60px);
+    background: inherit;
+    backdrop-filter: blur(10px);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+    transition: bottom 0.5s ease;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 999;
+}
 
-        button:hover {
-            background: #6d28d9;
-        }
+#panel.open {
+    bottom: 0;
+}
 
-        #community-list {
-            margin-top: 2rem;
-        }
-    </style>
+/* ------------------------------
+   PANEL CONTENT
+--------------------------------*/
+.panel-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.fact {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    color: white;
+    font-size: 18px;
+}
+
+.rating {
+    margin-top: 10px;
+}
+
+.star {
+    font-size: 22px;
+    cursor: pointer;
+    color: gold;
+}
+
+/* Reload Button */
+.reload-btn {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.3);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Ideenbereich */
+#idea-input {
+    width: 90%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 15px;
+}
+
+.idea-item {
+    background: rgba(255,255,255,0.2);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+}
+
+.like-btn {
+    cursor: pointer;
+    font-size: 20px;
+}
+</style>
 </head>
 
 <body>
-    <h1>Fun Facts</h1>
-    <p>Weil Langeweile manchmal kreativ macht.</p>
 
-    <!-- SPRACHE & KATEGORIE -->
-    <div class="controls">
-        <select id="language">
-            <option value="de">Deutsch 🇩🇪</option>
-            <option value="en">English 🇬🇧</option>
-        </select>
+<!-- HEADER -->
+<header>
+✨ Fun-Facts.web — For all of you ✨
+</header>
 
-        <select id="category">
-            <option value="animals">Tiere 🐾</option>
-            <option value="science">Wissenschaft 🔬</option>
-            <option value="random">Random ✨</option>
-            <option value="community">Community 💬</option>
-        </select>
-    </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="emoji" data-cat="tiere">🐾</div>
+    <div class="emoji" data-cat="wissenschaft">🔬</div>
+    <div class="emoji" data-cat="random">✨</div>
+    <div class="emoji" data-cat="geschichte">📜</div>
+    <div class="emoji" data-cat="weltraum">🚀</div>
+    <div class="emoji" data-cat="gaming">🎮</div>
+    <div class="emoji" data-cat="anime">🗾</div>
+    <div class="emoji" data-cat="psychologie">🧠</div>
+    <div class="emoji" data-cat="technologie">🤖</div>
+    <div class="emoji" data-cat="geografie">🌍</div>
+    <div class="emoji" data-cat="sport">⚽</div>
+    <div class="emoji" data-cat="tag">⭐</div>
+    <div class="emoji" data-cat="ideen">💡</div>
+</div>
 
-    <!-- FUN FACTS -->
-    <div id="facts"></div>
+<!-- PANEL -->
+<div id="panel">
+    <div class="panel-title" id="panel-title"></div>
+    <div id="panel-content"></div>
+</div>
 
-    <!-- COMMUNITY FACTS EINSENDEN -->
-    <h2>Community‑Fact einsenden 💬</h2>
-    <input id="factInput" type="text" placeholder="Dein Fun Fact...">
-    <button onclick="addCommunityFact()">Senden</button>
+<script>
+/* ---------------------------------------------------
+   STORAGE SYSTEM
+--------------------------------------------------- */
+let seenFacts = JSON.parse(localStorage.getItem("seenFacts") || "[]");
+let ratings = JSON.parse(localStorage.getItem("ratings") || "{}");
+let ideas = JSON.parse(localStorage.getItem("ideas") || "[]");
 
-    <div id="community-list"></div>
+/* ---------------------------------------------------
+   CATEGORY NAMES
+--------------------------------------------------- */
+const categoryNames = {
+    tiere: "🐾 Tiere",
+    wissenschaft: "🔬 Wissenschaft",
+    random: "✨ Random",
+    geschichte: "📜 Geschichte",
+    weltraum: "🚀 Weltraum",
+    gaming: "🎮 Gaming",
+    anime: "🗾 Anime",
+    psychologie: "🧠 Psychologie",
+    technologie: "🤖 Technologie",
+    geografie: "🌍 Geografie",
+    sport: "⚽ Sport",
+    tag: "⭐ Fakt des Tages",
+    ideen: "💡 Ideen für die Website"
+};
 
-    <script>
-        /* FUN FACT DATENBANK */
-        const facts = {
-            de: {
-                animals: [
-                    "Katzen können über 100 verschiedene Laute machen. 🐱",
-                    "Elefanten können nicht springen. 🐘",
-                    "Tintenfische haben drei Herzen. 🐙"
-                ],
-                science: [
-                    "Honig verdirbt nie — er wurde essbar in 3000 Jahre alten Gräbern gefunden. 🍯",
-                    "Schach hat mehr mögliche Partien als Atome im Universum. ♟️",
-                    "Licht braucht 8 Minuten von der Sonne zur Erde. ☀️"
-                ],
-                random: [
-                    "Banane ist eine Beere, Erdbeere nicht. 🍌",
-                    "Menschen teilen 60% ihrer DNA mit Bananen. 🧬",
-                    "Der kürzeste Krieg der Geschichte dauerte 38 Minuten. ⏱️"
-                ]
-            },
+/* ---------------------------------------------------
+   API SOURCES (Beispiele)
+--------------------------------------------------- */
+const apiSources = {
+    tiere: ["https://catfact.ninja/fact"],
+    random: ["https://uselessfacts.jsph.pl/random.json?language=en"],
+    wissenschaft: ["https://api.api-ninjas.com/v1/facts?limit=1"],
+    weltraum: ["https://api.le-systeme-solaire.net/rest/bodies/earth"],
+    // weitere APIs kannst du später ergänzen
+};
 
-            en: {
-                animals: [
-                    "Cats can make over 100 different sounds. 🐱",
-                    "Elephants can't jump. 🐘",
-                    "Octopuses have three hearts. 🐙"
-                ],
-                science: [
-                    "Honey never spoils — edible honey was found in 3000‑year‑old tombs. 🍯",
-                    "Chess has more possible games than atoms in the universe. ♟️",
-                    "Light takes 8 minutes to reach Earth from the sun. ☀️"
-                ],
-                random: [
-                    "Bananas are berries, strawberries are not. 🍌",
-                    "Humans share 60% of their DNA with bananas. 🧬",
-                    "The shortest war in history lasted 38 minutes. ⏱️"
-                ]
-            }
-        };
+/* ---------------------------------------------------
+   OPEN PANEL
+--------------------------------------------------- */
+document.querySelectorAll(".emoji").forEach(e => {
+    e.addEventListener("click", () => openPanel(e.dataset.cat));
+});
 
-        /* COMMUNITY FACTS LADEN */
-        let communityFacts = JSON.parse(localStorage.getItem("communityFacts") || "[]");
+function openPanel(cat) {
+    const panel = document.getElementById("panel");
+    const title = document.getElementById("panel-title");
+    const content = document.getElementById("panel-content");
 
-        function displayFacts() {
-            const lang = document.getElementById("language").value;
-            const cat = document.getElementById("category").value;
-            const container = document.getElementById("facts");
+    title.textContent = categoryNames[cat];
+    content.innerHTML = "";
 
-            container.innerHTML = "";
+    panel.classList.add("open");
 
-            let list = [];
+    if (cat === "ideen") {
+        loadIdeas();
+        return;
+    }
 
-            if (cat === "community") {
-                list = communityFacts;
-            } else {
-                list = facts[lang][cat];
-            }
+    if (cat === "tag") {
+        loadDailyFact();
+        return;
+    }
 
-            list.forEach(f => {
-                const div = document.createElement("div");
-                div.className = "fact";
-                div.textContent = f;
-                container.appendChild(div);
-            });
+    loadFacts(cat);
+}
+
+/* ---------------------------------------------------
+   LOAD FACTS (3 Stück)
+--------------------------------------------------- */
+async function loadFacts(cat) {
+    const content = document.getElementById("panel-content");
+    content.innerHTML = "Lade neue Fakten...";
+
+    let facts = [];
+
+    while (facts.length < 3) {
+        let fact = await fetchFact(cat);
+        if (!seenFacts.includes(fact)) {
+            seenFacts.push(fact);
+            facts.push(fact);
+        }
+    }
+
+    localStorage.setItem("seenFacts", JSON.stringify(seenFacts));
+
+    renderFacts(facts);
+}
+
+/* ---------------------------------------------------
+   FETCH FACT FROM API
+--------------------------------------------------- */
+async function fetchFact(cat) {
+    let url = apiSources[cat][0];
+    let res = await fetch(url);
+    let data = await res.json();
+
+    if (data.fact) return data.fact;
+    if (data.text) return data.text;
+    if (data.englishName) return "Earth: " + data.englishName;
+
+    return "Kein Fact gefunden.";
+}
+
+/* ---------------------------------------------------
+   RENDER FACTS
+--------------------------------------------------- */
+function renderFacts(facts) {
+    const content = document.getElementById("panel-content");
+    content.innerHTML = "";
+
+    facts.forEach(f => {
+        let div = document.createElement("div");
+        div.className = "fact";
+        div.textContent = f;
+
+        let ratingDiv = document.createElement("div");
+        ratingDiv.className = "rating";
+
+        for (let i = 1; i <= 5; i++) {
+            let star = document.createElement("span");
+            star.className = "star";
+            star.textContent = "★";
+            star.onclick = () => rateFact(f, i);
+            ratingDiv.appendChild(star);
         }
 
-        function addCommunityFact() {
-            const input = document.getElementById("factInput");
-            const text = input.value.trim();
+        div.appendChild(ratingDiv);
+        content.appendChild(div);
+    });
 
-            if (text.length < 10) {
-                alert("Der Fact ist zu kurz.");
-                return;
-            }
+    let btn = document.createElement("button");
+    btn.className = "reload-btn";
+    btn.textContent = "Neue Fakten laden";
+    btn.onclick = () => loadFacts(currentCategory);
+    content.appendChild(btn);
+}
 
-            communityFacts.push(text + " 💬");
-            localStorage.setItem("communityFacts", JSON.stringify(communityFacts));
+/* ---------------------------------------------------
+   RATE FACT
+--------------------------------------------------- */
+function rateFact(fact, stars) {
+    if (!ratings[fact]) ratings[fact] = {count: 0, sum: 0};
+    ratings[fact].count++;
+    ratings[fact].sum += stars;
+    localStorage.setItem("ratings", JSON.stringify(ratings));
+}
 
-            input.value = "";
-            displayFacts();
-        }
+/* ---------------------------------------------------
+   DAILY FACT (00:01)
+--------------------------------------------------- */
+function loadDailyFact() {
+    const content = document.getElementById("panel-content");
 
-        displayFacts();
-        document.getElementById("language").onchange = displayFacts;
-        document.getElementById("category").onchange = displayFacts;
-    </script>
+    let today = new Date().toISOString().split("T")[0];
+    let saved = JSON.parse(localStorage.getItem("dailyFact") || "{}");
+
+    if (saved.date === today) {
+        content.innerHTML = `<div class="fact">${saved.fact}</div>`;
+        return;
+    }
+
+    fetchFact("random").then(f => {
+        seenFacts.push(f);
+        localStorage.setItem("seenFacts", JSON.stringify(seenFacts));
+
+        localStorage.setItem("dailyFact", JSON.stringify({
+            date: today,
+            fact: f
+        }));
+
+        content.innerHTML = `<div class="fact">${f}</div>`;
+    });
+}
+
+/* ---------------------------------------------------
+   IDEAS
+--------------------------------------------------- */
+function loadIdeas() {
+    const content = document.getElementById("panel-content");
+    content.innerHTML = `
+        <input id="idea-input" placeholder="Neue Idee eingeben...">
+        <button class="reload-btn" onclick="addIdea()">Hinzufügen</button>
+        <div id="idea-list"></div>
+    `;
+
+    renderIdeas();
+}
+
+function addIdea() {
+    let input = document.getElementById("idea-input");
+    if (input.value.trim() === "") return;
+
+    ideas.push({text: input.value, likes: 0});
+    localStorage.setItem("ideas", JSON.stringify(ideas));
+    input.value = "";
+    renderIdeas();
+}
+
+function renderIdeas() {
+    let list = document.getElementById("idea-list");
+    list.innerHTML = "";
+
+    ideas.forEach((idea, index) => {
+        let div = document.createElement("div");
+        div.className = "idea-item";
+        div.innerHTML = `
+            ${idea.text}
+            <span class="like-btn" onclick="likeIdea(${index})">❤️ ${idea.likes}</span>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function likeIdea(i) {
+    ideas[i].likes++;
+    localStorage.setItem("ideas", JSON.stringify(ideas));
+    renderIdeas();
+}
+</script>
+
 </body>
 </html>
