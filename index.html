@@ -11,10 +11,11 @@
 <style>
    :root {
       - - fun - grandient: linear - grandient(120deg,
-                                            #ff9a9e,
-                                             #fad0c4,
-                                             #fabc2eb,
-                                             #a18cd1);
+             #ff9a9e,
+             #fad0c4,
+             #fabc2eb,
+             #a18cd1
+       );
    }
 /* ------------------------------
    GLOBAL STYLES + BACKGROUND
@@ -23,9 +24,10 @@ body {
     margin: 0;
     font-family: 'Inter', sans-serif;
     overflow: hidden;
-    background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a18cd1);
+    background: var(--fun-grandient120deg);
     background-size: 400% 400%;
     animation: gradientFlow 25s ease infinite;
+   color: black
 }
 
 @keyframes gradientFlow {
@@ -86,23 +88,32 @@ header {
    BOTTOM SHEET PANEL
 --------------------------------*/
 #panel {
+   opacity 0;
+   pointer-events: none;
+   
     position: fixed;
     left: 60px;
     bottom: -100%;
     width: calc(100% - 60px);
     height: calc(100% - 60px);
-    background: inherit;
-    backdrop-filter: blur(10px);
-    border-radius: 20px 20px 0 0;
+    
+   background: var(--fun-gradient); 
+    background-size: 400% 400%;
+   animation: gradientFlow 25s ease infinite;
+    
+   border-radius: 20px 20px 0 0;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
     transition: bottom 0.5s ease;
     padding: 20px;
     overflow-y: auto;
     z-index: 999;
+
+   color: black;
 }
 
 #panel.open {
-    bottom: 0;
+    opacity: 1;
+   pointer-events: auto;
 }
 
 /* ------------------------------
