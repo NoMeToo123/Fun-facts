@@ -4,14 +4,26 @@
     <meta charset="UTF-8">
     <title>Fun Facts</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e1b4b, #312e81);
-            color: #f1f5f9;
+            color: #fff;
             text-align: center;
             padding: 2rem;
+            overflow-x: hidden;
+
+            /* ANIMIERTER FARBVERLAUF */
+            background: linear-gradient(45deg, #1e1b4b, #312e81, #4c1d95, #6d28d9, #7c3aed);
+            background-size: 500% 500%;
+            animation: gradientMove 15s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         h1 {
@@ -20,20 +32,157 @@
         }
 
         .fact {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             padding: 1rem;
             margin: 1rem auto;
-            border-radius: 10px;
-            max-width: 500px;
+            border-radius: 12px;
+            max-width: 600px;
+            font-size: 1.2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .controls {
+            margin-bottom: 2rem;
+        }
+
+        select, input, button {
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            margin: 0.3rem;
+        }
+
+        button {
+            background: #4c1d95;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #6d28d9;
+        }
+
+        #community-list {
+            margin-top: 2rem;
         }
     </style>
 </head>
+
 <body>
     <h1>Fun Facts</h1>
     <p>Weil Langeweile manchmal kreativ macht.</p>
 
-    <div class="fact">Katzen können über 100 verschiedene Laute machen.</div>
-    <div class="fact">Honig verdirbt nie — er wurde essbar in 3000 Jahre alten Gräbern gefunden.</div>
-    <div class="fact">Schach hat mehr mögliche Partien als Atome im Universum.</div>
+    <!-- SPRACHE & KATEGORIE -->
+    <div class="controls">
+        <select id="language">
+            <option value="de">Deutsch 🇩🇪</option>
+            <option value="en">English 🇬🇧</option>
+        </select>
+
+        <select id="category">
+            <option value="animals">Tiere 🐾</option>
+            <option value="science">Wissenschaft 🔬</option>
+            <option value="random">Random ✨</option>
+            <option value="community">Community 💬</option>
+        </select>
+    </div>
+
+    <!-- FUN FACTS -->
+    <div id="facts"></div>
+
+    <!-- COMMUNITY FACTS EINSENDEN -->
+    <h2>Community‑Fact einsenden 💬</h2>
+    <input id="factInput" type="text" placeholder="Dein Fun Fact...">
+    <button onclick="addCommunityFact()">Senden</button>
+
+    <div id="community-list"></div>
+
+    <script>
+        /* FUN FACT DATENBANK */
+        const facts = {
+            de: {
+                animals: [
+                    "Katzen können über 100 verschiedene Laute machen. 🐱",
+                    "Elefanten können nicht springen. 🐘",
+                    "Tintenfische haben drei Herzen. 🐙"
+                ],
+                science: [
+                    "Honig verdirbt nie — er wurde essbar in 3000 Jahre alten Gräbern gefunden. 🍯",
+                    "Schach hat mehr mögliche Partien als Atome im Universum. ♟️",
+                    "Licht braucht 8 Minuten von der Sonne zur Erde. ☀️"
+                ],
+                random: [
+                    "Banane ist eine Beere, Erdbeere nicht. 🍌",
+                    "Menschen teilen 60% ihrer DNA mit Bananen. 🧬",
+                    "Der kürzeste Krieg der Geschichte dauerte 38 Minuten. ⏱️"
+                ]
+            },
+
+            en: {
+                animals: [
+                    "Cats can make over 100 different sounds. 🐱",
+                    "Elephants can't jump. 🐘",
+                    "Octopuses have three hearts. 🐙"
+                ],
+                science: [
+                    "Honey never spoils — edible honey was found in 3000‑year‑old tombs. 🍯",
+                    "Chess has more possible games than atoms in the universe. ♟️",
+                    "Light takes 8 minutes to reach Earth from the sun. ☀️"
+                ],
+                random: [
+                    "Bananas are berries, strawberries are not. 🍌",
+                    "Humans share 60% of their DNA with bananas. 🧬",
+                    "The shortest war in history lasted 38 minutes. ⏱️"
+                ]
+            }
+        };
+
+        /* COMMUNITY FACTS LADEN */
+        let communityFacts = JSON.parse(localStorage.getItem("communityFacts") || "[]");
+
+        function displayFacts() {
+            const lang = document.getElementById("language").value;
+            const cat = document.getElementById("category").value;
+            const container = document.getElementById("facts");
+
+            container.innerHTML = "";
+
+            let list = [];
+
+            if (cat === "community") {
+                list = communityFacts;
+            } else {
+                list = facts[lang][cat];
+            }
+
+            list.forEach(f => {
+                const div = document.createElement("div");
+                div.className = "fact";
+                div.textContent = f;
+                container.appendChild(div);
+            });
+        }
+
+        function addCommunityFact() {
+            const input = document.getElementById("factInput");
+            const text = input.value.trim();
+
+            if (text.length < 10) {
+                alert("Der Fact ist zu kurz.");
+                return;
+            }
+
+            communityFacts.push(text + " 💬");
+            localStorage.setItem("communityFacts", JSON.stringify(communityFacts));
+
+            input.value = "";
+            displayFacts();
+        }
+
+        displayFacts();
+        document.getElementById("language").onchange = displayFacts;
+        document.getElementById("category").onchange = displayFacts;
+    </script>
 </body>
 </html>
