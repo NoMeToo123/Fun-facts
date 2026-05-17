@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Fun-Facts.web — For all of you</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* GLOBAL */
+:root {
+    --fun-gradient: linear-gradient(120deg,
+        #ff9a9e,
+        #fad0c4,
+        #fbc2eb,
+        #a18cd1
+    );
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--fun-gradient);
+    background-size: 400% 400%;
+    animation: gradientFlow 25s ease infinite;
+    color: black;
+    overflow: hidden;
+}
+
+@keyframes gradientFlow {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* HEADER */
+header {
+    position: fixed;
+    top: 0;
+    left: 60px;
+    height: 60px;
+    width: calc(100% - 60px);
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: black;
+    z-index: 1000;
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100vh;
+    padding-top: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    background: rgba(255,255,255,0.2);
+    z-index: 1001;
+}
+
+.sidebar .emoji {
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* PANEL */
+#panel {
+    position: fixed;
+    left: 60px;
+    bottom: -100%;
+    width: calc(100% - 60px);
+    height: calc(100% - 60px);
+
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    overflow-y: auto;
+    transition: bottom 0.5s ease, opacity 0.3s ease;
+
+    opacity: 0;
+    pointer-events: none;
+
+    color: black;
+    z-index: 999;
+}
+
+#panel.open {
+    bottom: 0;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.panel-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.fact {
+    background: rgba(255,255,255,0.4);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.star {
+    font-size: 22px;
+    cursor: pointer;
+    color: gold;
+}
+
+.idea-item {
+    background: rgba(255,255,255,0.4);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+</style>
+</head>
+
+<body>
+
+<header>✨ Fun-Facts.web — For all of you ✨</header>
+
+<div class="sidebar">
+    <div class="emoji" data-cat="tiere">🐾</div>
+    <div class="emoji" data-cat="wissenschaft">🔬</div>
+    <div class="emoji" data-cat="random">✨</div>
+    <div class="emoji" data-cat="geschichte">📜</div>
+    <div class="emoji" data-cat="weltraum">🚀</div>
+    <div class="emoji" data-cat="gaming">🎮</div>
+    <div class="emoji" data-cat="anime">🗾</div>
+    <div class="emoji" data-cat="psychologie">🧠</div>
+    <div class="emoji" data-cat="technologie">🤖</div>
+    <div class="emoji" data-cat="geografie">🌍</div>
+    <div class="emoji" data-cat="sport">⚽</div>
+    <div class="emoji" data-cat="tag">⭐</div>
+    <div class="emoji" data-cat="ideen">💡</div>
+</div>
+
+<div id="panel">
+    <div id="panel-title" class="panel-title"></div>
+    <div id="panel-content"></div>
+</div>
+
+<script>
+const panel = document.getElementById("panel");
+const title = document.getElementById("panel-title");
+const content = document.getElementById("panel-content");
+
+let ideas = JSON.parse(localStorage.getItem("ideas") || "[]");
+let ratings = JSON.parse(localStorage.getItem("ratings") || "{}");
+let seenFacts = JSON.parse(localStorage.getItem("seenFacts") || "[]");
+
+document.querySelectorAll(".emoji").forEach(e => {
+    e.addEventListener("click", () => openPanel(e.dataset.cat));
+});
+
+function openPanel(cat) {
+    panel.classList.add("open");
+
+    if (cat === "ideen") return loadIdeas();
+    if (cat === "tag") return loadDailyFact();
+
+    loadFacts(cat);
+}
+
+function loadFacts(cat) {
+    title.textContent = getCategoryName(cat);
+    content.innerHTML = "";
+
+    const facts = [
+        "Katzen schlafen 70% ihres Lebens.",
+        "Honig verdirbt nie.",
+        "Bananen sind Beeren.",
+        "Der Mount Everest wächst jedes Jahr 4 mm.",
+        "Der Mars hat den höchsten Vulkan im Sonnensystem.",
+        "Tintenfische haben drei Herzen.",
+        "Japan hat über 6.800 Inseln.",
+        "Der Mensch teilt 60% seiner DNA mit Bananen."
+    ];
+
+    const selected = facts.sort(() => Math.random() - 0.5).slice(0, 3);
+
+    selected.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "fact";
+        div.textContent = f;
+
+        const rating = document.createElement("div");
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement("span");
+            star.className = "star";
+            star.textContent = "★";
+            star.onclick = () => rateFact(f, i);
+            rating.appendChild(star);
+        }
+
+        div.appendChild(rating);
+        content.appendChild(div);
+    });
+}
+
+function getCategoryName(cat) {
+    const names = {
+        tiere: "🐾 Tiere",
+        wissenschaft: "🔬 Wissenschaft",
+        random: "✨ Random",
+        geschichte: "📜 Geschichte",
+        weltraum: "🚀 Weltraum",
+        gaming: "🎮 Gaming",
+        anime: "🗾 Anime",
+        psychologie: "🧠 Psychologie",
+        technologie: "🤖 Technologie",
+        geografie: "🌍 Geografie",
+        sport: "⚽ Sport",
+        tag: "⭐ Fakt des Tages",
+        ideen: "💡 Ideen"
+    };
+    return names[cat];
+}
+
+function rateFact(fact, stars) {
+    if (!ratings[fact]) ratings[fact] = {count: 0, sum: 0};
+    ratings[fact].count++;
+    ratings[fact].sum += stars;
+    localStorage.setItem("ratings", JSON.stringify(ratings));
+}
+
+function loadDailyFact() {
+    title.textContent = "⭐ Fakt des Tages";
+
+    let today = new Date().toISOString().split("T")[0];
+    let saved = JSON.parse(localStorage.getItem("dailyFact") || "{}");
+
+    if (saved.date === today) {
+        content.innerHTML = `<div class="fact">${saved.fact}</div>`;
+        return;
+    }
+
+    const facts = [
+        "Schnecken haben 14.000 Zähne.",
+        "Der Eiffelturm wird im Sommer 15 cm größer.",
+        "Goldfische können sich an Menschen erinnern.",
+        "Der Mond entfernt sich jedes Jahr 3,8 cm von der Erde."
+    ];
+
+    let f = facts[Math.floor(Math.random() * facts.length)];
+
+    localStorage.setItem("dailyFact", JSON.stringify({date: today, fact: f}));
+
+    content.innerHTML = `<div class="fact">${f}</div>`;
+}
+
+function loadIdeas() {
+    title.textContent = "💡 Ideen";
+    content.innerHTML = `
+        <input id="idea-input" placeholder="Neue Idee..." style="width:90%;padding:10px;border-radius:10px;border:none;margin-bottom:10px;">
+        <button onclick="addIdea()" style="padding:10px 15px;border:none;border-radius:10px;background:black;color:white;">Hinzufügen</button>
+        <div id="idea-list" style="margin-top:15px;"></div>
+    `;
+    renderIdeas();
+}
+
+function addIdea() {
+    let input = document.getElementById("idea-input");
+    if (!input.value.trim()) return;
+
+    ideas.push({text: input.value, likes: 0});
+    localStorage.setItem("ideas", JSON.stringify(ideas));
+    input.value = "";
+    renderIdeas();
+}
+
+function renderIdeas() {
+    let list = document.getElementById("idea-list");
+    list.innerHTML = "";
+
+    ideas.forEach((idea, i) => {
+        let div = document.createElement("div");
+        div.className = "idea-item";
+        div.innerHTML = `
+            ${idea.text}
+            <span style="cursor:pointer;" onclick="likeIdea(${i})">❤️ ${idea.likes}</span>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function likeIdea(i) {
+    ideas[i].likes++;
+    localStorage.setItem("ideas", JSON.stringify(ideas));
+    renderIdeas();
+}
+</script>
+
+</body>
+</html>
